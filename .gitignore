@@ -1,0 +1,6 @@
+bin/
+obj/
+*.zip
+*.log
+desktop.ini
+chan-doan.txt
