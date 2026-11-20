@@ -14,6 +14,29 @@ Add-in thêm ba thẻ vào Ribbon của Word:
 - **My table:** áp một kiểu bảng thống nhất cho mọi bảng (tiêu đề, viền, tô xen kẽ, font, cỡ chữ, căn ô), thêm hoặc xóa hàng và cột, tính Tổng, Trung bình, Nhỏ nhất, Lớn nhất, Đếm số, Tích theo định dạng ngay trong bảng (kể cả bảng có ô gộp).
 - **Chuẩn hóa:** chuẩn hóa dàn trang và đoạn văn (có chọn canh lề, áp cho nhiều đoạn cùng lúc), định dạng số (kiểu Việt, Mỹ, SI, số chữ số thập phân, kiểu kỹ thuật), đọc số và đơn vị bằng chữ, rà soát công thức hóa học, toán, ký hiệu và đơn vị, soạn phương trình, và các công cụ AI (viết lại, dịch, văn phong, ngữ pháp, thuật ngữ, từ đồng nghĩa).
 
+## Ảnh chụp màn hình
+
+Chụp từ Word 16 (Microsoft 365) trên Windows 10, bản Rev0.9.6. Bấm vào ảnh để xem cỡ đầy đủ.
+
+**Tính tổng trong bảng có ô gộp:** bôi đen cột Khối lượng rồi bấm **Tổng**; kết quả điền vào ô nguyên bản thẳng cột ngay dưới, dù hàng cuối có ô gộp.
+
+![Bôi đen cột Khối lượng, bấm Tổng, kết quả 1,438.5 nằm ở hàng Tổng cộng có ô gộp](docs/images/table-sum-merged.png)
+
+**Ba thẻ trên Ribbon:**
+
+![Thẻ Công cụ](docs/images/ribbon-tools-vi.png)
+
+![Thẻ My table](docs/images/ribbon-mytable-vi.png)
+
+![Thẻ Chuẩn hóa](docs/images/ribbon-standardize-vi.png)
+
+**Bảng điều khiển và Cài đặt:**
+
+<p>
+  <img src="docs/images/pane-vi.png" alt="Bảng điều khiển: Chuẩn hóa kỹ thuật, Phương trình, Công cụ AI" height="520">
+  <img src="docs/images/settings-vi.png" alt="Cài đặt, có mục chọn ngôn ngữ giao diện" height="520">
+</p>
+
 ## Yêu cầu
 
 - Windows 10 trở lên, Microsoft Word bản máy tính (2016 hoặc Microsoft 365).
@@ -63,6 +86,29 @@ The add-in adds three tabs to the Word ribbon:
 - **Công cụ (Tools):** frequently used Word commands (font, paragraph, page, insert, pictures, tables) in one neatly arranged tab, plus the add-in's own standardization buttons and the language switch.
 - **My table:** apply one consistent table style to all tables (header, borders, zebra rows, font, size, cell alignment), add or delete rows and columns, and calculate Sum, Average, Min, Max, Count and format-based Product directly in a table (including tables with merged cells).
 - **Chuẩn hóa (Standardize):** page and paragraph standardization (selectable alignment, applies to several selected paragraphs at once), number formatting (Vietnamese, US, SI styles, decimal places, scientific style), reading numbers and units in words, review of chemical and math formulas, symbols and units, an equation composer, and optional AI tools (rewrite, translate, style, grammar, terminology, synonyms).
+
+### Screenshots
+
+Taken in Word 16 (Microsoft 365) on Windows 10, build Rev0.9.6. Click an image to see it at full size. The sample table is in Vietnamese; the ribbon below it is in the Vietnamese interface.
+
+**Sum in a table with merged cells:** select the mass column and click **Sum** (Tổng); the result goes into the unmerged cell directly below, even when the last row has merged cells.
+
+![Select the mass column, click Sum, the result 1,438.5 goes into the merged total row](docs/images/table-sum-merged.png)
+
+**The three ribbon tabs in the English interface:**
+
+![Tools tab](docs/images/ribbon-tools-en.png)
+
+![My table tab](docs/images/ribbon-mytable-en.png)
+
+![Standardize tab](docs/images/ribbon-standardize-en.png)
+
+**Task pane and Settings:**
+
+<p>
+  <img src="docs/images/pane-en.png" alt="Task pane: Technical standardization, Equation, AI tools" height="520">
+  <img src="docs/images/settings-en.png" alt="Settings, with the interface language selector" height="520">
+</p>
 
 ### Requirements
 
