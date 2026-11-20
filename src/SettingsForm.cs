@@ -16,7 +16,7 @@ namespace TroLyKyThuat
         readonly ToolTip tip = new ToolTip();
         FlowLayoutPanel f;
         int W = 480;
-        ComboBox cbParaAlign, cbNumStyle, cbNumDec, cbCalcDec, cbCalcFmt, cbSciDec, cbUnitNames, cbPagePaper, cbAiModel;
+        ComboBox cbLang, cbParaAlign, cbNumStyle, cbNumDec, cbCalcDec, cbCalcFmt, cbSciDec, cbUnitNames, cbPagePaper, cbAiModel;
         CheckBox chThou, chAddDec, chTop, chClear, chDlg;
         TextBox tbKey, tbAiTemp, tbAiMaxTok;
         TextBox tbPtTop, tbPtBot, tbPtLeft, tbPtRight, tbLnTop, tbLnBot, tbLnLeft, tbLnRight, tbHdrDist, tbFtrDist;
@@ -56,6 +56,9 @@ namespace TroLyKyThuat
             UiZoom.Attach(this, scroll, "settings", delegate { Reflow(scroll); });
             scroll.Resize += delegate { Reflow(scroll); };
 
+            Head("Giao diện");
+            cbLang = Combo("Ngôn ngữ giao diện (Interface language)", new Item[] { new Item("Tiếng Việt", "vi") { Raw = true }, new Item("English", "en") { Raw = true } },
+                "Chọn tiếng Việt hoặc English cho Ribbon, bảng điều khiển và thông báo. Có hiệu lực ngay sau khi lưu, không cần mở lại Word. Cũng đổi nhanh được bằng nút Ngôn ngữ trên Ribbon. Chữ chưa có bản dịch giữ tiếng Việt.");
             Head("Số");
             cbNumStyle = Combo("Kiểu dấu của nút Dấu trên Ribbon", new Item[] { new Item("Việt: 1.234,56", "vn"), new Item("Mỹ: 1,234.56", "us"), new Item("SI: 1 234,56", "si") }, "Kiểu số mà nút Dấu trên Ribbon đang dùng và đổi theo vòng. Kiểu dấu khi rà soát chọn riêng ở bảng điều khiển, thẻ Chuẩn hóa kỹ thuật.");
             chThou = Chk("Dấu hàng nghìn", "Nhóm hàng nghìn từ 4 chữ số trở lên, ở cả ba kiểu.");
@@ -110,11 +113,12 @@ namespace TroLyKyThuat
             btnCheckAi = aiBtns[0]; btnTestSaveAi = aiBtns[1]; btnClearAi = aiBtns[2];
             Head("Trợ giúp");
             var help = new TextBox(); help.Multiline = true; help.ReadOnly = true; help.ScrollBars = ScrollBars.Vertical; help.Height = 420; help.Width = W - 10;
-            help.Text = HelpText; help.AccessibleName = "Hướng dẫn sử dụng"; help.BackColor = Color.White; help.TabStop = true; help.Select(0, 0);
+            help.Text = HelpText; help.Tag = "doc"; help.AccessibleName = "Hướng dẫn sử dụng"; help.BackColor = Color.White; help.TabStop = true; help.Select(0, 0);
             f.Controls.Add(help);
             BtnRow(new string[] { "Mở nhật ký" }, new Action[] { delegate { OpenLog(); } });
             LoadToUi();
             Reflow(scroll);
+            Lang.Apply(this, tip);   // Rev0.9.6: dịch theo ngôn ngữ đã chọn
         }
 
         void Reflow(Panel scroll)
@@ -217,6 +221,7 @@ namespace TroLyKyThuat
         void LoadToUi()
         {
             UiUtil.Pick(cbNumStyle, st.NumStyle); UiUtil.Pick(cbNumDec, st.NumDec); UiUtil.Pick(cbCalcDec, st.CalcDec); UiUtil.Pick(cbCalcFmt, st.CalcFmtKind); UiUtil.Pick(cbSciDec, st.SciDec.ToString()); UiUtil.Pick(cbUnitNames, st.UnitNames);
+            UiUtil.Pick(cbLang, st.Language);
             UiUtil.Pick(cbPagePaper, st.PagePaper);
             tbPtTop.Text = FmtD(st.PgPortTop); tbPtBot.Text = FmtD(st.PgPortBot); tbPtLeft.Text = FmtD(st.PgPortLeft); tbPtRight.Text = FmtD(st.PgPortRight);
             tbLnTop.Text = FmtD(st.PgLandTop); tbLnBot.Text = FmtD(st.PgLandBot); tbLnLeft.Text = FmtD(st.PgLandLeft); tbLnRight.Text = FmtD(st.PgLandRight);
@@ -278,6 +283,7 @@ namespace TroLyKyThuat
             s.NumStyle = UiUtil.Val(cbNumStyle); s.NumDec = UiUtil.Val(cbNumDec); s.CalcDec = UiUtil.Val(cbCalcDec); s.CalcFmtKind = UiUtil.Val(cbCalcFmt);
             { int sd; if (int.TryParse(UiUtil.Val(cbSciDec), out sd)) s.SciDec = Math.Max(0, Math.Min(5, sd)); }
             s.UnitNames = UiUtil.Val(cbUnitNames) == "common" ? "common" : "law";
+            s.Language = UiUtil.Val(cbLang);
             s.PagePaper = UiUtil.Val(cbPagePaper);
             s.PgPortTop = ParseD(tbPtTop, s.PgPortTop, 0.2, 10.0); s.PgPortBot = ParseD(tbPtBot, s.PgPortBot, 0.2, 10.0);
             s.PgPortLeft = ParseD(tbPtLeft, s.PgPortLeft, 0.2, 10.0); s.PgPortRight = ParseD(tbPtRight, s.PgPortRight, 0.2, 10.0);
@@ -295,6 +301,7 @@ namespace TroLyKyThuat
             s.ShowDialog = chDlg.Checked;
             s.NumThou = chThou.Checked; s.NumAddDecToInt = chAddDec.Checked; s.TopMost = chTop.Checked; s.ClearManual = chClear.Checked;
             s.Save(); st = s;
+            Lang.Set(s.Language);   // Rev0.9.6: đổi ngôn ngữ giao diện ngay (Ribbon và bảng điều khiển)
         }
 
         void SetAiBusy(bool busy)
@@ -430,19 +437,18 @@ namespace TroLyKyThuat
 
         const string HelpText =
 "HƯỚNG DẪN NHANH\r\n" +
-"Mọi lệnh nằm trên Ribbon, thẻ My tab. Bảng điều khiển (nút Bảng điều khiển) dùng để rà soát và soạn phương trình.\r\n\r\n" +
+"Mọi lệnh nằm trên Ribbon, ba thẻ Công cụ, My table và Chuẩn hóa. Bảng điều khiển (nút Bảng điều khiển) dùng để rà soát và soạn phương trình. Nút Ngôn ngữ đổi giữa tiếng Việt và English.\r\n\r\n" +
 "BẢNG\r\n" +
 "Mọi bảng, Bảng này: áp dụng master style. Chỉ ghi thuộc tính đang khác nên bảng đã đúng thì chạy gần như tức thì. Một lần Ctrl+Z hoàn tác cả lần áp dụng. Bảng này chỉ đổi bảng đang chọn (không đổi các bảng khác, kể cả màu nền dòng tiêu đề); Mọi bảng đổi tất cả.\r\n" +
 "Lặp tiêu đề: bật hoặc tắt lặp dòng tiêu đề ở mỗi trang (kèm không ngắt hàng giữa hai trang) cho mọi bảng nằm trong phần đang chọn: con trỏ trong một bảng thì bảng đó, bôi đen qua nhiều bảng thì tất cả. Mũi tên bên dưới: bật hoặc tắt cho mọi bảng.\r\n" +
 "Tiêu đề (màu nền, màu chữ, căn chữ), Viền (độ dày, màu, kiểu nét), Tô xen kẽ (bật tắt, màu): đặt thông số, sau đó bấm Mọi bảng hoặc Bảng này để áp dụng. Mỗi nút màu mở trực tiếp bảng màu thống nhất kiểu Word hiện đại gồm Tự động, Màu giao diện (10 × 6), Màu chuẩn (10) và Thêm màu... Mã màu ghi vào tài liệu là RGB nên máy không cài add-in vẫn hiển thị đúng màu.\r\n" +
 "DÀN TRANG (Rev0.9.3)\r\n" +
-"Nhóm Dàn trang nằm ngoài cùng bên trái thẻ Trợ lý Kỹ thuật: Chuẩn hóa dàn trang (khổ giấy, căn lề trang dọc/ngang, đầu/chân trang theo thông số trong Cài đặt), Chuẩn hóa đoạn văn (chỉ đoạn tại con trỏ, căn đều hai bên, Times New Roman 13 pt, Arial 11 pt, font khác giữ nguyên cỡ; giãn dòng 1,2; trên 6 dưới 6; thụt dòng đầu 1,25 cm hoặc thụt treo cho đoạn thường), Thêm trang ngang / Thêm trang dọc chèn 1 trang mới định hướng độc lập ngay sau trang chứa con trỏ.\r\n\r\n" +
+"Nhóm Dàn trang nằm ở thẻ Chuẩn hóa (và thẻ Công cụ): Chuẩn hóa dàn trang (khổ giấy, căn lề trang dọc/ngang, đầu/chân trang theo thông số trong Cài đặt), Chuẩn hóa đoạn văn (chỉ đoạn tại con trỏ, căn đều hai bên, Times New Roman 13 pt, Arial 11 pt, font khác giữ nguyên cỡ; giãn dòng 1,2; trên 6 dưới 6; thụt dòng đầu 1,25 cm hoặc thụt treo cho đoạn thường), Thêm trang ngang / Thêm trang dọc chèn 1 trang mới định hướng độc lập ngay sau trang chứa con trỏ.\r\n\r\n" +
 "Ký tự trong bảng: font (danh sách là các font đã cài trong máy, hoặc gõ tên font), cỡ chữ, khoảng cách đoạn trong ô, căn ô chữ, căn ô số.\r\n" +
 "Xóa định dạng chỉnh tay khi áp dụng: bật tắt ở cửa sổ Cài đặt này.\r\n\r\n" +
 "HÀNG VÀ CỘT\r\n" +
 "Thêm hàng, Thêm cột, Xóa: mỗi hàng hoặc cột đang chọn được xử lý riêng. Giữ Ctrl để chọn nhiều hàng, cột rời nhau. Ô Thêm cùng hai mũi tên là số hàng, cột thêm cho mỗi hàng, cột.\r\n" +
 "Tính: chọn dãy ô số rồi chọn phép tính. Dãy ngang thì điền kết quả vào cột bên phải, dãy dọc thì điền vào hàng bên dưới.\r\n" +
-"Xuất: CSV ra tệp, Excel sao chép vào Clipboard để dán vào Excel.\r\n\r\n" +
 "ĐỊNH DẠNG SỐ\r\n" +
 "Bôi đen một dãy ô, một cột, một hàng, hoặc các số rải rác trong văn bản rồi bấm.\r\n" +
 "Nút Dấu: đổi kiểu theo vòng Việt (1.234,56), Mỹ (1,234.56), SI (1 234,56). Thêm số lẻ, Bớt số lẻ: tăng hoặc giảm một chữ số thập phân, tối đa 5.\r\n" +

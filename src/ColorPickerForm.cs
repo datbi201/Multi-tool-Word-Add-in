@@ -102,23 +102,23 @@ namespace TroLyKyThuat
                 g.DrawRectangle(border, 0, 0, Width - 1, Height - 1);
 
             // 1. Tự động
-            DrawButtonRow(g, autoRect, hoverKind == 0, true, WordPalette.AutoLabel(target), WordPalette.AutoHex(target));
+            DrawButtonRow(g, autoRect, hoverKind == 0, true, Lang.Msg(WordPalette.AutoLabel(target)), WordPalette.AutoHex(target));
 
             // 2. Màu giao diện
-            DrawHeader(g, Pad, autoRect.Bottom + 6, WordPalette.ThemeSectionLabel);
+            DrawHeader(g, Pad, autoRect.Bottom + 6, Lang.T(WordPalette.ThemeSectionLabel));
             for (int i = 0; i < WordPalette.ThemeCount; i++)
                 DrawSwatch(g, themeRects[i], WordPalette.ThemeHex(i), hoverKind == 1 && hoverIdx == i);
 
             // 3. Màu chuẩn
             int stdLabelY = themeRects[WordPalette.ThemeCount - 1].Bottom + 6;
-            DrawHeader(g, Pad, stdLabelY, WordPalette.StdSectionLabel);
+            DrawHeader(g, Pad, stdLabelY, Lang.T(WordPalette.StdSectionLabel));
             for (int i = 0; i < WordPalette.StdCount; i++)
                 DrawSwatch(g, stdRects[i], WordPalette.StdHex(i), hoverKind == 2 && hoverIdx == i);
 
             // 4. Thêm màu...
             using (var sep = new Pen(Color.FromArgb(225, 225, 225)))
                 g.DrawLine(sep, Pad, moreRect.Top - 5, Width - Pad, moreRect.Top - 5);
-            DrawButtonRow(g, moreRect, hoverKind == 3, false, WordPalette.MoreColorsLabel, null);
+            DrawButtonRow(g, moreRect, hoverKind == 3, false, Lang.T(WordPalette.MoreColorsLabel), null);
         }
 
         void DrawHeader(Graphics g, int x, int y, string text)
@@ -175,12 +175,12 @@ namespace TroLyKyThuat
         {
             base.OnMouseMove(e);
             int nk = -1, ni = -1; string t = null;
-            if (autoRect.Contains(e.Location)) { nk = 0; t = WordPalette.AutoLabel(target); }
-            else if (moreRect.Contains(e.Location)) { nk = 3; t = WordPalette.MoreColorsLabel; }
+            if (autoRect.Contains(e.Location)) { nk = 0; t = Lang.Msg(WordPalette.AutoLabel(target)); }
+            else if (moreRect.Contains(e.Location)) { nk = 3; t = Lang.T(WordPalette.MoreColorsLabel); }
             else
             {
-                for (int i = 0; i < themeRects.Length; i++) if (themeRects[i].Contains(e.Location)) { nk = 1; ni = i; t = WordPalette.ThemeLabel(i); break; }
-                if (nk < 0) for (int i = 0; i < stdRects.Length; i++) if (stdRects[i].Contains(e.Location)) { nk = 2; ni = i; t = WordPalette.StdLabel(i); break; }
+                for (int i = 0; i < themeRects.Length; i++) if (themeRects[i].Contains(e.Location)) { nk = 1; ni = i; t = Lang.Msg(WordPalette.ThemeLabel(i)); break; }
+                if (nk < 0) for (int i = 0; i < stdRects.Length; i++) if (stdRects[i].Contains(e.Location)) { nk = 2; ni = i; t = Lang.Msg(WordPalette.StdLabel(i)); break; }
             }
             if (nk != hoverKind || ni != hoverIdx)
             {

@@ -20,6 +20,7 @@ static class PaneShot
 
     static int Main(string[] args)
     {
+        if (Environment.GetEnvironmentVariable("TROLY_LANG") == "en") Lang.Set("en");   // Rev0.9.6: chụp giao diện tiếng Anh (set TROLY_LANG=en)
         string outPng = args.Length > 0 ? args[0] : "pane-shot.png";
         string mode = args.Length > 1 ? args[1] : "pmv2";
         int tab = args.Length > 2 ? int.Parse(args[2]) : 0;

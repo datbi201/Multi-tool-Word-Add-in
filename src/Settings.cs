@@ -68,6 +68,7 @@ namespace TroLyKyThuat
         public double ParaLineSpace = 1.2, ParaSpaceBefore = 6.0, ParaSpaceAfter = 6.0;        // giãn dòng 1.2, trên 6 pt, dưới 6 pt
         public double ParaFirstLineCm = 1.25, ParaHangingCm = 0;                               // thụt dòng đầu (cm) và thụt treo (cm)
         public string ParaAlign = "justify";   // Rev0.9.5.13: canh lề đoạn văn cho nút Chuẩn hóa đoạn văn: left, center, right, justify
+        public string Language = "vi";         // Rev0.9.6: ngôn ngữ giao diện, vi hoặc en (mặc định vi để không đổi giao diện của người dùng cũ)
         // --- AI trực tuyến (khóa được mã hóa bằng DPAPI theo người dùng Windows hiện tại) ---
         public string ApiProvider = "";
         public string ApiKeyEnc = "";
@@ -160,6 +161,7 @@ namespace TroLyKyThuat
                 s.ParaSpaceAfter = Clamp(Dbl(map, "ParaSpaceAfter", s.ParaSpaceAfter), 0.0, 72.0);
                 s.ParaFirstLineCm = Clamp(Dbl(map, "ParaFirstLineCm", s.ParaFirstLineCm), 0.0, 5.0);
                 { string pa = Str(map, "ParaAlign", s.ParaAlign); if (pa == "left" || pa == "center" || pa == "right" || pa == "justify") s.ParaAlign = pa; }
+                { string lg = Str(map, "Language", s.Language); if (lg == "vi" || lg == "en") s.Language = lg; }
                 s.ParaHangingCm = Clamp(Dbl(map, "ParaHangingCm", s.ParaHangingCm), 0.0, 5.0);
                 s.ApiProvider = Str(map, "ApiProvider", s.ApiProvider); s.ApiKeyEnc = Str(map, "ApiKeyEnc", s.ApiKeyEnc);
                 s.ApiModel = Str(map, "ApiModel", s.ApiModel);
@@ -244,6 +246,7 @@ namespace TroLyKyThuat
                 Add(sb, "ParaSpaceAfter", ParaSpaceAfter.ToString(CultureInfo.InvariantCulture));
                 Add(sb, "ParaFirstLineCm", ParaFirstLineCm.ToString(CultureInfo.InvariantCulture));
                 Add(sb, "ParaAlign", ParaAlign);
+                Add(sb, "Language", Language);
                 Add(sb, "ParaHangingCm", ParaHangingCm.ToString(CultureInfo.InvariantCulture));
                 Add(sb, "ApiProvider", ApiProvider); Add(sb, "ApiKeyEnc", ApiKeyEnc);
                 Add(sb, "ApiModel", ApiModel);

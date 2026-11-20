@@ -233,6 +233,23 @@ namespace TroLyKyThuat
                         break;
 
                     // --- Định dạng số ---
+                    case "btnLangT":
+                    case "btnLang":
+                        // Rev0.9.6: nút đổi ngôn ngữ, hiện mã ngôn ngữ đang dùng (VI hoặc EN) trong khung tính toán, kèm quả cầu nhỏ ở góc
+                        DrawCalcBox(g);
+                        using (var f = new Font("Segoe UI", 13f, FontStyle.Bold, GraphicsUnit.Pixel))
+                        using (var b = new SolidBrush(Dark))
+                        using (var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
+                        {
+                            g.DrawString(style == "en" ? "EN" : "VI", f, b, new RectangleF(3, 6, 26, 20), sf);
+                        }
+                        using (var p = new Pen(Blue, 1.3f))
+                        {
+                            g.DrawEllipse(p, 21, 2, 9, 9);
+                            g.DrawEllipse(p, 24, 2, 3, 9);
+                            g.DrawLine(p, 21, 6.5f, 30, 6.5f);
+                        }
+                        break;
                     case "mnuNum":
                     case "btnNumStyle":
                         DrawCalcBox(g);

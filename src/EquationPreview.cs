@@ -22,7 +22,7 @@ namespace TroLyKyThuat
         public void Set(MNode node, string text)
         {
             formula = node;
-            AccessibleName = "Xem trước " + (stacked ? "riêng dòng: " : "cùng dòng: ") + (text ?? "");
+            AccessibleName = Lang.Msg("Xem trước " + (stacked ? "riêng dòng: " : "cùng dòng: ")) + (text ?? "");
             Invalidate();
         }
 

@@ -211,6 +211,9 @@ namespace TroLyKyThuat
           </box>
           <control idMso=""EquationInsertGallery"" size=""large"" />
         </group>
+        <group id=""grpTlLang"" label=""Ngôn ngữ"">
+          <button id=""btnLangT"" getLabel=""GetLangLabel"" size=""large"" getImage=""GetImg"" onAction=""OnBtn"" screentip=""Đổi ngôn ngữ giao diện Việt, Anh"" supertip=""Bấm để đổi giữa tiếng Việt và English. Có hiệu lực ngay cho Ribbon và bảng điều khiển, không cần mở lại Word. Cũng chọn được ở Cài đặt."" />
+        </group>
         <group id=""grpTlPic"" label=""Ảnh và xem"">
           <box id=""bxTlPic1"" boxStyle=""vertical"">
             <control idMso=""PicturesCompress"" />
@@ -405,13 +408,15 @@ namespace TroLyKyThuat
         <group id=""grpPane"" label=""Cài đặt"">
           <button id=""btnPane"" label=""Bảng điều khiển"" size=""large"" getImage=""GetImg"" onAction=""OnBtn"" screentip=""Mở bảng điều khiển"" supertip=""Rà soát và soạn phương trình."" />
           <button id=""btnSettings"" label=""Cài đặt"" size=""large"" getImage=""GetImg"" onAction=""OnBtn"" screentip=""Cài đặt và trợ giúp"" supertip=""Quy ước số, xóa định dạng chỉnh tay khi áp dụng master style, khóa API, hướng dẫn sử dụng."" />
+          <button id=""btnLang"" getLabel=""GetLangLabel"" size=""large"" getImage=""GetImg"" onAction=""OnBtn"" screentip=""Đổi ngôn ngữ giao diện Việt, Anh"" supertip=""Bấm để đổi giữa tiếng Việt và English. Có hiệu lực ngay cho Ribbon và bảng điều khiển, không cần mở lại Word. Cũng chọn được ở Cài đặt."" />
         </group>
       </tab>
     </tabs>
   </ribbon>
 </customUI>";
 
-        static string RibbonXml
+        /// <summary>Ribbon XML tĩnh (tiếng Việt, đã gắn menu màu). Dùng cho kiểm thử cấu trúc.</summary>
+        static string RibbonXmlStatic
         {
             get
             {
@@ -421,11 +426,34 @@ namespace TroLyKyThuat
             }
         }
 
-        public static string BuildRibbonXml() { return RibbonXml; }
-        internal static string RibbonXmlForTest() { return RibbonXml; }
+        // Rev0.9.6: nhãn và chú thích tĩnh được đổi thành lệnh gọi lại để đổi ngôn ngữ ngay. Bảng này lưu nguyên văn tiếng Việt theo "mã|thuộc tính".
+        static readonly Dictionary<string, string> ribbonVi = new Dictionary<string, string>();
+        static string RibbonXml
+        {
+            get { lock (ribbonVi) { return Lang.TransformRibbon(RibbonXmlStatic, ribbonVi); } }
+        }
+
+        public static string BuildRibbonXml() { return RibbonXmlStatic; }
+        internal static string RibbonXmlForTest() { return RibbonXmlStatic; }
+        internal static string RibbonXmlRuntimeForTest() { return RibbonXml; }
+
+        string RibbonText(object control, string attr)
+        {
+            try
+            {
+                string id = (string)((dynamic)control).Id; string vi;
+                lock (ribbonVi) { if (!ribbonVi.TryGetValue(id + "|" + attr, out vi)) return ""; }
+                return Lang.T(vi);
+            }
+            catch (Exception ex) { Log.W("RibbonText loi: " + ex.Message); return ""; }
+        }
+        public string GetLbl(object control) { return RibbonText(control, "label"); }
+        public string GetScr(object control) { return RibbonText(control, "screentip"); }
+        public string GetSup(object control) { return RibbonText(control, "supertip"); }
+        public string GetLangLabel(object control) { return Lang.IsEn ? "Language: EN" : "Ngôn ngữ: VI"; }
 
         // ---------------------------------------------------------------- IRibbonExtensibility
-        string IRibbonExtensibility.GetCustomUI(string RibbonID) { Log.W("GetCustomUI " + RibbonID); return RibbonXml; }
+        string IRibbonExtensibility.GetCustomUI(string RibbonID) { Log.W("GetCustomUI " + RibbonID); try { Lang.Set(AppSettings.Load().Language); } catch { } return RibbonXml; }
 
         // Ribbon gọi các hàm này qua IDispatch (trên luồng chính của Word).
         public string GetN(object control)
@@ -499,6 +527,7 @@ namespace TroLyKyThuat
             if (id.StartsWith("auto_")) return "sw:" + WordPalette.AutoHex(id.Substring(5));
             switch (id)
             {
+                case "btnLang": case "btnLangT": return "btnLang:" + Lang.Current;
                 case "btnNumStyle": return id + ":" + AppSettings.Load().NumStyle;
                 case "btnSync": { AppSettings q = AppSettings.Load(); return id + ":" + (q.SyncSci ? "sci" : q.SyncDec.ToString(CultureInfo.InvariantCulture)); }
                 case "btnHdrBg": case "mnuHdrBg": return "btnHdrBg:" + AppSettings.Load().HdrBg;
@@ -529,11 +558,13 @@ namespace TroLyKyThuat
             catch (Exception ex) { Log.W("OnCheck loi: " + ex); }
         }
 
-        public string GetLabel(object control)
+        public string GetLabel(object control) { return Lang.Msg(GetLabelVi(control)); }
+        string GetLabelVi(object control)
         {
             try { return "Dấu " + NumberEdit.StyleShort(AppSettings.Load().NumStyle); } catch { return "Dấu số"; }
         }
-        public string GetTip(object control)
+        public string GetTip(object control) { return Lang.Msg(GetTipVi(control)); }
+        string GetTipVi(object control)
         {
             try
             {
@@ -542,17 +573,20 @@ namespace TroLyKyThuat
             }
             catch { return "Đổi kiểu dấu phân cách"; }
         }
-        public string GetSuper(object control)
+        public string GetSuper(object control) { return Lang.Msg(GetSuperVi(control)); }
+        string GetSuperVi(object control)
         {
             return "Đổi mọi số đang bôi đen (ô trong bảng hoặc số trong văn bản) sang kiểu kế tiếp, theo vòng Việt, Mỹ, SI. Kiểu mặc định và dấu hàng nghìn chỉnh ở Cài đặt.";
         }
 
 
-        public string GetSyncLabel(object control)
+        public string GetSyncLabel(object control) { return Lang.Msg(GetSyncLabelVi(control)); }
+        string GetSyncLabelVi(object control)
         {
             try { AppSettings s = AppSettings.Load(); return s.SyncSci ? "Đồng bộ: kỹ thuật" : "Đồng bộ: " + s.SyncDec + " số lẻ"; } catch { return "Đồng bộ số lẻ"; }
         }
-        public string GetSyncTip(object control)
+        public string GetSyncTip(object control) { return Lang.Msg(GetSyncTipVi(control)); }
+        string GetSyncTipVi(object control)
         {
             try
             {
@@ -575,7 +609,8 @@ namespace TroLyKyThuat
             }
             catch (Exception ex) { Log.W("FontImg loi: " + ex.Message); return null; }
         }
-        public string GetFontLabel(object control)
+        public string GetFontLabel(object control) { return Lang.Msg(GetFontLabelVi(control)); }
+        string GetFontLabelVi(object control)
         {
             try { return "Font: " + AppSettings.Load().FontName; } catch { return "Font"; }
         }
@@ -612,7 +647,8 @@ namespace TroLyKyThuat
             }
             catch (Exception ex) { Log.W("GalImg loi: " + ex.Message); return null; }
         }
-        public string GalLabel(object control, int index)
+        public string GalLabel(object control, int index) { return Lang.T(GalLabelVi(control, index)); }
+        string GalLabelVi(object control, int index)
         {
             try { return GalId(control).StartsWith("gT_") ? WordPalette.ThemeLabel(index) : WordPalette.StdLabel(index); } catch { return ""; }
         }
@@ -631,7 +667,8 @@ namespace TroLyKyThuat
             AppSettings s = AppSettings.Load(); string m = TableParams.SetColor(target, s, hex); s.Save(); Notify(m); Refresh(MenuOf(target)); ApplyNow(target == "border" ? "borderClr" : target);
         }
 
-        public string GetZebraLabel(object control)
+        public string GetZebraLabel(object control) { return Lang.Msg(GetZebraLabelVi(control)); }
+        string GetZebraLabelVi(object control)
         {
             try { return AppSettings.Load().Zebra ? "Tô xen kẽ: đang bật (bấm để tắt)" : "Tô xen kẽ: đang tắt (bấm để bật)"; } catch { return "Tô xen kẽ"; }
         }
@@ -755,6 +792,7 @@ namespace TroLyKyThuat
                     case "btnParaFormat": case "tbParaFormat": Do(delegate(AppSettings s) { return new WordLayout(wordApp).StandardizeParagraphs(s); }); break;
                     case "btnAddLand": case "tbAddLand": Do(delegate(AppSettings s) { return new WordLayout(wordApp).InsertOrientedPage(s, true); }); break;
                     case "btnAddPort": case "tbAddPort": Do(delegate(AppSettings s) { return new WordLayout(wordApp).InsertOrientedPage(s, false); }); break;
+                    case "btnLang": case "btnLangT": ToggleLanguage(); break;
                     case "btnPane": ShowPane(null, false); break;
                     case "btnSettings": ShowSettings(); break;
                     case "btnReview": ShowPane("rv", true); break;
@@ -885,12 +923,29 @@ namespace TroLyKyThuat
 
         void ApplyNow(string group) { Exec(delegate(WordTables w, AppSettings s) { return w.ApplyNow(s, group); }, null); }
 
+        /// <summary>Rev0.9.6: nút VI/EN trên Ribbon. Lưu vào Cài đặt rồi đổi ngay (Ribbon và bảng điều khiển), không cần mở lại Word.</summary>
+        void ToggleLanguage()
+        {
+            string next = Lang.IsEn ? Lang.Vi : Lang.En;
+            try { AppSettings s = AppSettings.Load(); s.Language = next; s.Save(); } catch (Exception ex) { Log.W("ToggleLanguage luu loi: " + ex.Message); }
+            Lang.Set(next);   // kích hoạt OnLanguageChanged
+            Notify(next == Lang.En ? "Interface language: English." : "Ngôn ngữ giao diện: Tiếng Việt.");
+        }
+
+        /// <summary>Ngôn ngữ vừa đổi (từ nút Ribbon hoặc từ Cài đặt): làm mới Ribbon trên luồng chính của Word và dịch lại bảng điều khiển.</summary>
+        void OnLanguageChanged()
+        {
+            try { Host.OnWord<bool>(delegate { try { if (ribbonUi != null) ((dynamic)ribbonUi).Invalidate(); } catch (Exception ex) { Log.W("Invalidate ngon ngu loi: " + ex.Message); } return true; }); } catch (Exception ex) { Log.W("OnLanguageChanged loi: " + ex.Message); }
+            try { PaneForm p = pane; if (p != null && !p.IsDisposed && p.IsHandleCreated) p.BeginInvoke(new MethodInvoker(delegate { p.ApplyLanguage(); })); } catch { }
+        }
+
         void Notify(string msg)
         {
-            try { ((dynamic)wordApp).StatusBar = "Trợ lý Kỹ thuật: " + msg; } catch { }
+            msg = Lang.Msg(msg);   // Rev0.9.6: dịch thông báo theo ngôn ngữ giao diện
+            try { ((dynamic)wordApp).StatusBar = Lang.T("Trợ lý Kỹ thuật") + ": " + msg; } catch { }
             if (SayInPane(msg)) return;
             // Rev0.7: không hiện hộp thoại sau mỗi lệnh (mất thời gian); kết quả nằm trên thanh trạng thái của Word. Bật lại ở Cài đặt nếu cần.
-            try { if (AppSettings.Load().ShowDialog) MessageBox.Show(msg, "Trợ lý Kỹ thuật"); } catch { }
+            try { if (AppSettings.Load().ShowDialog) MessageBox.Show(msg, Lang.T("Trợ lý Kỹ thuật")); } catch { }
         }
 
         bool SayInPane(string msg)
@@ -915,6 +970,8 @@ namespace TroLyKyThuat
             {
                 if (Application != IntPtr.Zero) wordApp = Marshal.GetObjectForIUnknown(Application);
                 AppDomain.CurrentDomain.UnhandledException += delegate(object o, UnhandledExceptionEventArgs e) { Log.W("UNHANDLED: " + e.ExceptionObject); };
+                try { Lang.Set(AppSettings.Load().Language); } catch { }
+                Lang.Changed += OnLanguageChanged;
                 AiSessionUsage.Reset();
                 Host.Init(wordApp);
                 Log.W("OnConnection OK, CLR " + Environment.Version + ", " + (IntPtr.Size == 8 ? "64-bit" : "32-bit"));
@@ -964,7 +1021,7 @@ namespace TroLyKyThuat
                 {
                     Log.W("Loi tao bang dieu khien: " + ex);
                     pane = null; ready.Set();
-                    try { MessageBox.Show("Không tạo được bảng điều khiển: " + ex.Message + "\r\nChi tiết trong tệp log.txt ở thư mục %TEMP%\\TroLyKyThuat."); } catch { }
+                    try { MessageBox.Show(Lang.T("Không tạo được bảng điều khiển: ") + ex.Message + "\r\nChi tiết trong tệp log.txt ở thư mục %TEMP%\\TroLyKyThuat."); } catch { }
                 }
             });
             uiThread.SetApartmentState(ApartmentState.STA);
@@ -989,6 +1046,7 @@ namespace TroLyKyThuat
 
         void Shutdown()
         {
+            Lang.Changed -= OnLanguageChanged;
             Host.StopPoll();
             StopTableDetect();
             try

@@ -19,11 +19,13 @@ if errorlevel 1 (pause & exit /b 1)
 if errorlevel 1 (pause & exit /b 1)
 "%FW%\csc.exe" /nologo /codepage:65001 /r:System.dll /r:System.Core.dll /r:System.Windows.Forms.dll /r:System.Drawing.dll /r:System.Security.dll /r:System.Xml.dll /r:Microsoft.CSharp.dll /out:bin\tests-ai.exe %COMMON% src\Secret.cs src\DpiUtil.cs src\Chem.cs src\Units.cs src\Review.cs src\Omml.cs src\MathSpans.cs src\Compose.cs src\WordTables.cs src\AiClient.cs src\AiReview.cs src\TranslationNumbers.cs src\WordText.cs tests\MockWord.cs tests\TestAi.cs
 if errorlevel 1 (pause & exit /b 1)
-"%FW%\csc.exe" /nologo /codepage:65001 /target:exe /r:System.Windows.Forms.dll /r:System.Drawing.dll /r:System.Core.dll /r:Microsoft.CSharp.dll /r:System.Xml.dll /out:bin\tests-colorpick.exe src\ColorPickerForm.cs src\DpiUtil.cs src\WordPalette.cs src\Log.cs src\Settings.cs src\NumberUtil.cs tests\TestColorPick.cs
+"%FW%\csc.exe" /nologo /codepage:65001 /target:exe /r:System.Windows.Forms.dll /r:System.Drawing.dll /r:System.Core.dll /r:Microsoft.CSharp.dll /r:System.Xml.dll /out:bin\tests-colorpick.exe src\ColorPickerForm.cs src\DpiUtil.cs src\WordPalette.cs src\Log.cs src\Settings.cs src\NumberUtil.cs src\Lang.cs src\LangData.cs tests\TestColorPick.cs
 if errorlevel 1 (pause & exit /b 1)
 "%FW%\csc.exe" /nologo /codepage:65001 /r:System.dll /r:System.Core.dll /r:System.Windows.Forms.dll /r:System.Drawing.dll /r:Microsoft.CSharp.dll /r:System.Security.dll /r:System.Xml.dll /out:bin\tests-ribbon.exe src\*.cs tests\TestRibbon.cs
 if errorlevel 1 (pause & exit /b 1)
 "%FW%\csc.exe" /nologo /codepage:65001 /r:System.dll /r:System.Core.dll /r:System.Windows.Forms.dll /r:System.Drawing.dll /r:Microsoft.CSharp.dll /r:System.Security.dll /r:System.Xml.dll /out:bin\tests-icons.exe src\*.cs tests\TestIcons.cs
+if errorlevel 1 (pause & exit /b 1)
+"%FW%\csc.exe" /nologo /codepage:65001 /r:System.dll /r:System.Core.dll /r:System.Windows.Forms.dll /r:System.Drawing.dll /r:Microsoft.CSharp.dll /r:System.Security.dll /r:System.Xml.dll /main:TestLang /out:bin\tests-lang.exe src\*.cs tests\MockWord.cs tests\TestLang.cs
 if errorlevel 1 (pause & exit /b 1)
 "%FW%\csc.exe" /nologo /codepage:65001 /r:System.dll /r:System.Core.dll /r:System.Windows.Forms.dll /r:System.Drawing.dll /r:Microsoft.CSharp.dll /r:System.Security.dll /r:System.Xml.dll /out:bin\tests-dpi.exe src\*.cs tests\MockWord.cs tests\TestDpi.cs
 if errorlevel 1 (pause & exit /b 1)
@@ -49,6 +51,8 @@ if errorlevel 1 exit /b 1
 call :verify tests-ribbon
 if errorlevel 1 exit /b 1
 call :verify tests-icons
+if errorlevel 1 exit /b 1
+call :verify tests-lang
 if errorlevel 1 exit /b 1
 call :verify tests-dpi
 if errorlevel 1 exit /b 1

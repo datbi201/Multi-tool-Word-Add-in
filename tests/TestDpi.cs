@@ -290,9 +290,9 @@ static class TestDpi
         }
         Tr(gm == null, "bỏ nhóm Vị trí chèn để chỉ thay vùng chọn");
         Tr(tools != null && tools.Items.Count == 5 &&
-            (string)tools.Items[0] == "Thuật ngữ" && (string)tools.Items[1] == "Văn phong" &&
-            (string)tools.Items[2] == "Ngữ pháp" && (string)tools.Items[3] == "Từ đồng nghĩa" &&
-            (string)tools.Items[4] == "Viết lại và Dịch", "một thẻ Công cụ AI có đủ năm nhóm chức năng");
+            tools.Items[0].ToString() == "Thuật ngữ" && tools.Items[1].ToString() == "Văn phong" &&
+            tools.Items[2].ToString() == "Ngữ pháp" && tools.Items[3].ToString() == "Từ đồng nghĩa" &&
+            tools.Items[4].ToString() == "Viết lại và Dịch", "một thẻ Công cụ AI có đủ năm nhóm chức năng");
 
         // Use a deterministic missing-key state without touching the user's settings.
         var settingsField = typeof(PaneForm).GetField("st", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);

@@ -33,7 +33,7 @@ namespace TroLyKyThuat
             };
             aiTool = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 220,
                 AccessibleName = "Chọn công cụ AI" };
-            aiTool.Items.AddRange(new object[] { "Thuật ngữ", "Văn phong", "Ngữ pháp", "Từ đồng nghĩa", "Viết lại và Dịch" });
+            aiTool.Items.AddRange(new object[] { new Item("Thuật ngữ", "term"), new Item("Văn phong", "style"), new Item("Ngữ pháp", "gram"), new Item("Từ đồng nghĩa", "syn"), new Item("Viết lại và Dịch", "ai") });   // Rev0.9.6: Item để dịch được tên hiển thị
             header.Controls.Add(aiTool);
             aiNotice = Lbl(header, AiKeyMessage);
             aiNotice.Name = "AiKeyNotice";
@@ -188,7 +188,7 @@ namespace TroLyKyThuat
                 lv.View = View.Details; lv.FullRowSelect = true; lv.MultiSelect = false; lv.HideSelection = false; lv.GridLines = true;
                 lv.Width = o.W - 10; lv.Height = 280; lv.AccessibleName = "Danh sách các mục cần xem";
                 lv.Columns.Add("Mức", 96); lv.Columns.Add("Loại", 84); lv.Columns.Add("Hiện tại", 130); lv.Columns.Add("Đề xuất", 130);
-                lv.Columns.Add("Sửa", 40); lv.Columns.Add("Bỏ", 40);
+                lv.Columns.Add("Sửa", 48); lv.Columns.Add("Bỏ", 52);
                 lv.SelectedIndexChanged += delegate { OnPick(); };
                 lv.MouseUp += OnListClick;
                 lv.KeyDown += delegate(object s, KeyEventArgs e)
@@ -334,11 +334,11 @@ namespace TroLyKyThuat
             {
                 RvRow r = Current();
                 if (r == null) { UpdateAiButtons(); return; }
-                tbReason.Text = r.SevText + ". " + r.CatText + ". " + r.Reason;
+                tbReason.Text = Lang.Msg(r.SevText + ". " + r.CatText + ". " + r.Reason);
                 cbFix.Items.Clear();
-                for (int i = 0; i < r.FixLabels.Length; i++) cbFix.Items.Add(r.FixLabels[i] + ": " + r.Before + " thành " + r.FixShow[i]);
+                for (int i = 0; i < r.FixLabels.Length; i++) cbFix.Items.Add(Lang.Msg(r.FixLabels[i] + ": " + r.Before + " thành " + r.FixShow[i]));
                 if (cbFix.Items.Count > 0) cbFix.SelectedIndex = 0;
-                else cbFix.Items.Add("Chỉ để xem, không có cách sửa tự động");
+                else cbFix.Items.Add(Lang.Msg("Chỉ để xem, không có cách sửa tự động"));
                 UpdateAiButtons();
                 string err;
                 o.OnWord(delegate { return Wr.Goto(r.Index); }, out err);
@@ -396,7 +396,7 @@ namespace TroLyKyThuat
                 lv.Items.RemoveAt(idx);
                 if (idx < lv.Items.Count) { lv.Items[idx].Selected = true; lv.Items[idx].Focused = true; }
                 else if (lv.Items.Count > 0) { lv.Items[lv.Items.Count - 1].Selected = true; }
-                else { tbReason.Text = "Đã xử lý hết các mục."; cbFix.Items.Clear(); }
+                else { tbReason.Text = Lang.Msg("Đã xử lý hết các mục."); cbFix.Items.Clear(); }
                 SetEnabled();
                 lbl.Text = "Còn " + lv.Items.Count + " mục.";
             }
@@ -509,7 +509,7 @@ namespace TroLyKyThuat
                 if (phrase.Length == 0 || phrase.Length > 200) { o.Report("Hãy nhập một thuật ngữ ngắn."); return; }
                 string query = phrase;
                 AppSettings settings = o.st;
-                tbLookRes.Text = "Đang tra bằng AI…";
+                tbLookRes.Text = Lang.Msg("Đang tra bằng AI…");
                 o.RunAi(delegate
                 {
                     return AiClient.Complete(Secret.Unprotect(settings.ApiKeyEnc), settings.ApiModel,
@@ -518,7 +518,7 @@ namespace TroLyKyThuat
                 }, delegate(AiChatResult result, string err)
                 {
                     if (tbLook.Text.Trim() != query) return;
-                    tbLookRes.Text = err ?? (result.Ok ? result.Text : result.Error);
+                    tbLookRes.Text = err != null ? Lang.Msg(err) : (result.Ok ? result.Text : Lang.Msg(result.Error));
                 });
             }
 

@@ -1,3 +1,20 @@
+# Rev0.9.6 — Giao diện tiếng Anh và nút đổi ngôn ngữ Việt, Anh
+
+1. **Nút Ngôn ngữ (VI | EN)** trên Ribbon, ở nhóm Cài đặt của thẻ Chuẩn hóa và ở thẻ Công cụ. Bấm một lần là đổi **ngay** Ribbon (nhãn nút, tên nhóm, tên thẻ, chú thích) và bảng điều khiển đang mở, **không cần mở lại Word**. Cũng chọn được ở **Cài đặt**, mục Giao diện (Ngôn ngữ giao diện).
+2. **Phạm vi dịch:** toàn bộ Ribbon (166 chuỗi), hộp Cài đặt (nhãn, chú thích, hướng dẫn nhanh), bảng điều khiển (ba thẻ Chuẩn hóa kỹ thuật, Phương trình, Công cụ AI, danh sách rà soát, chân trang đếm token), hộp chọn màu, và các thông báo kết quả (thanh trạng thái Word, ô thông báo, hộp thoại): tính trong bảng, thao tác bảng, dàn trang và đoạn văn, định dạng số, chuẩn hóa kỹ thuật, rà soát, công cụ AI. Khoảng 1.085 chuỗi nguyên câu và 678 mảnh thông báo ghép (số và tên riêng giữ nguyên vị trí).
+3. **Mặc định vẫn là tiếng Việt**, không tự nhận theo Windows, nên người đang dùng không bị đổi giao diện.
+4. **Chữ chưa có bản dịch giữ tiếng Việt** (không lỗi). Cố ý giữ tiếng Việt: chữ đọc số và đơn vị bằng lời (Đọc số), luật rà soát chính tả, ngữ pháp, văn phong **của văn bản tiếng Việt** và các ví dụ tiếng Việt trong chú thích, kết quả do AI trả về (theo ngôn ngữ đích bạn chọn), nhật ký chẩn đoán, tên ngôn ngữ "Tiếng Việt" trong ô chọn.
+5. Sửa nhỏ: hướng dẫn nhanh trong Cài đặt cập nhật theo ba thẻ hiện tại (bỏ nhắc thẻ "My tab" cũ và nút Xuất đã bỏ); danh sách rà soát: hai cột ký hiệu Sửa, Bỏ rộng hơn cho chữ tiếng Anh.
+6. Kỹ thuật: lớp mới `Lang.cs`, dữ liệu `LangData.cs`. Ribbon chạy thật chuyển nhãn và chú thích tĩnh thành lệnh gọi lại (getLabel, getScreentip, getSupertip) nên đổi ngôn ngữ chỉ cần làm mới Ribbon. Bảng điều khiển dịch lại từ bản gốc tiếng Việt nên đổi qua lại nhiều lần vẫn chính xác từng chữ.
+7. Kiểm thử: bộ mới `tests-lang` (67 kiểm tra): mặc định vi, lưu và nạp ngôn ngữ, giá trị lạ về vi, dịch nguyên câu và theo mảnh (không khớp giữa một từ khác), 100% nhãn và chú thích Ribbon có bản dịch, lệnh gọi lại Ribbon khớp hàm trên Connect, hộp Cài đặt và bảng điều khiển không còn chữ tiếng Việt chưa dịch, đổi en rồi về vi trả lại đúng từng chữ gốc. Cả 13 bộ đạt.
+8. Chưa thử trong Word thật qua Ribbon của bản cài (cần `install.bat`); đã chụp bảng điều khiển và Cài đặt ở tiếng Anh bằng `dpi-check`/PaneShot (đặt `TROLY_LANG=en`).
+
+Thêm chuỗi mới sau này: thêm cặp (tiếng Việt, tiếng Anh) vào `src\LangData.cs` (vào cả bảng Frag nếu là mảnh của thông báo ghép); bộ `tests-lang` sẽ báo nếu Ribbon, Cài đặt hoặc bảng điều khiển có chữ chưa dịch.
+
+Phần của Rev0.9.5.14 (thẻ Công cụ) và Rev0.9.5.13 giữ nguyên bên dưới.
+
+---
+
 # Rev0.9.5.14 — Thẻ "Công cụ" xếp gọn, thay thẻ tự tạo của Word
 
 1. **Thẻ mới "Công cụ"** (đứng đầu trong ba thẻ của add-in) gom các lệnh Word hay dùng vào một chỗ, xếp nút lớn nhỏ ngay hàng như thẻ có sẵn của Word. Thẻ tự tạo bằng Customize Ribbon của Word không chỉnh được kích thước nút hay chia hàng, nên bị lệch; thẻ nằm trong add-in thì tự quy định được.

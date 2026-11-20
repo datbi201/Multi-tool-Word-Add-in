@@ -138,6 +138,7 @@ static class TestIcons
         addAlias("btnPageSetup", "tbPageSetup");
         addAlias("btnAddPort", "tbAddPort");
         addAlias("btnAddLand", "tbAddLand");
+        addAlias("btnLang", "btnLangT");   // Rev0.9.6: hai nút ngôn ngữ (thẻ Chuẩn hóa và thẻ Công cụ) cùng một hình
 
         int dupCount = 0;
         for (int i = 0; i < testIds.Count; i++)

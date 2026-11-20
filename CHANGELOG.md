@@ -2,6 +2,14 @@
 
 Mỗi bản nằm trong một thư mục riêng, ví dụ `Rev0.1`. Bản mới không ghi đè bản cũ.
 
+## Rev0.9.6 (2026-11-20)
+
+- Thêm giao diện tiếng Anh và nút đổi ngôn ngữ Việt, Anh (Ribbon, Cài đặt, bảng điều khiển, hộp chọn màu, thông báo kết quả). Đổi ngay không cần mở lại Word. Mặc định tiếng Việt.
+- Lớp `Lang` dịch ở biên giao diện: Ribbon dùng lệnh gọi lại thay nhãn tĩnh, hộp thoại dịch từ bản gốc tiếng Việt, thông báo ghép dịch theo mảnh (không khớp giữa một từ khác). Chuỗi chưa dịch giữ tiếng Việt.
+- Chữ giữ tiếng Việt có chủ ý: đọc số bằng lời, luật rà soát văn bản tiếng Việt, kết quả AI.
+- Hướng dẫn nhanh trong Cài đặt cập nhật theo ba thẻ hiện tại.
+- Kiểm thử mới `tests-lang` (67 kiểm tra); 13 bộ đạt. Chưa thử qua Ribbon của bản cài.
+
 ## Rev0.9.5.14 (2026-11-20)
 
 - Thêm thẻ **Công cụ** vào add-in, dựng từ các lệnh Word có sẵn (idMso), thay thẻ My tools tự tạo bằng Customize Ribbon bị lệch (Word không cho chỉnh kích thước nút và chia hàng). Sáu nhóm: Chữ, Đoạn văn, Trang, Chèn, Ảnh và xem, Bảng; kèm bốn nút của add-in (Chuẩn hóa đoạn văn, Chuẩn hóa dàn trang, Thêm trang dọc, Thêm trang ngang).

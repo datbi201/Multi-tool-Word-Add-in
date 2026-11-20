@@ -15,8 +15,9 @@ namespace TroLyKyThuat
     sealed class Item
     {
         public string Text; public string Value;
+        public bool Raw;   // Rev0.9.6: true thì hiện đúng chữ gốc, không dịch (tên ngôn ngữ giao diện)
         public Item(string t, string v) { Text = t; Value = v; }
-        public override string ToString() { return Text; }
+        public override string ToString() { return Raw ? Text : Lang.Msg(Text); }
     }
 
     static class UiUtil
@@ -44,6 +45,7 @@ namespace TroLyKyThuat
         readonly List<Panel> scrolls = new List<Panel>();
         readonly List<FlowLayoutPanel> flows = new List<FlowLayoutPanel>();
         readonly ToolTip tip = new ToolTip();
+        System.Windows.Forms.Timer langTimer;
         int W = 440;
 
         // thẻ Viết lại (AI)
@@ -108,7 +110,7 @@ namespace TroLyKyThuat
             lblTokenFooter.Font = DpiUtil.CreateUiFont(9f, FontStyle.Regular);
             lblTokenFooter.TextAlign = ContentAlignment.MiddleLeft;
             lblTokenFooter.Padding = new Padding(6, 0, 6, 0);
-            lblTokenFooter.Text = AiSessionUsage.FormatFooter();
+            lblTokenFooter.Text = Lang.Msg(AiSessionUsage.FormatFooter());
             lblTokenFooter.AccessibleName = "Số token AI đã dùng trong phiên Word hiện tại";
             Controls.Add(lblTokenFooter);
 
@@ -116,7 +118,7 @@ namespace TroLyKyThuat
             status.Multiline = true; status.ReadOnly = true; status.ScrollBars = ScrollBars.Vertical;
             status.Dock = DockStyle.Bottom; status.Height = 84; status.BackColor = Color.FromArgb(238, 245, 253);
             status.AccessibleName = "Thông báo kết quả"; status.AccessibleRole = AccessibleRole.StaticText;
-            status.Text = "Sẵn sàng.";
+            status.Text = Lang.T("Sẵn sàng.");
             Controls.Add(status);
 
             main = new TabControl(); main.Dock = DockStyle.Fill; main.AccessibleName = "Nhóm chức năng"; main.ShowToolTips = true;
@@ -134,6 +136,12 @@ namespace TroLyKyThuat
             main.SelectedIndexChanged += delegate { if (main.SelectedTab == pRw) RefreshAiNotice(); };
             LoadToUi();
             ReflowAll();
+            Lang.Apply(this, tip);   // Rev0.9.6: dịch giao diện theo ngôn ngữ đã chọn
+            // nhãn và danh sách đổi nội dung lúc chạy (kết quả quét, bộ đếm từ...): dịch lại định kỳ khi đang ở tiếng Anh
+            langTimer = new System.Windows.Forms.Timer(); langTimer.Interval = 400;
+            langTimer.Tick += delegate { if (Lang.IsEn && Visible && !IsDisposed) Lang.Apply(this, tip); };
+            langTimer.Start();
+            FormClosed += delegate { try { langTimer.Stop(); langTimer.Dispose(); } catch { } };
             Resize += delegate { ReflowAll(); };
             // Rev0.9.5.2: nếu màn hình đang hiện có tỷ lệ khác bố cục (ví dụ dựng ở màn 100% rồi hiện ở màn 125-200%), co giãn chữ và nút cho đúng
             Shown += delegate { DpiUtil.SyncDpi(this); Log.W("Bảng điều khiển hiện: " + DpiUtil.Describe(this)); };
@@ -177,12 +185,25 @@ namespace TroLyKyThuat
             ReloadIfChanged();
         }
 
+        /// <summary>Rev0.9.6: đổi ngôn ngữ giao diện khi bảng điều khiển đang mở: dịch lại mọi nhãn, chú thích, mục chọn từ bản gốc tiếng Việt.</summary>
+        public void ApplyLanguage()
+        {
+            try
+            {
+                Lang.Apply(this, tip);
+                if (lblTokenFooter != null) lblTokenFooter.Text = Lang.Msg(AiSessionUsage.FormatFooter());
+                if (status != null && (status.Text == "Sẵn sàng." || status.Text == "Ready.")) status.Text = Lang.T("Sẵn sàng.");
+                ReflowAll();
+            }
+            catch (Exception ex) { Log.W("ApplyLanguage loi: " + ex.Message); }
+        }
+
         void OnAiUsageChanged()
         {
             try
             {
                 if (IsDisposed || !IsHandleCreated) return;
-                BeginInvoke(new MethodInvoker(delegate { if (!IsDisposed && lblTokenFooter != null) lblTokenFooter.Text = AiSessionUsage.FormatFooter(); }));
+                BeginInvoke(new MethodInvoker(delegate { if (!IsDisposed && lblTokenFooter != null) lblTokenFooter.Text = Lang.Msg(AiSessionUsage.FormatFooter()); }));
             }
             catch { }
         }
@@ -190,6 +211,7 @@ namespace TroLyKyThuat
         /// <summary>Thông báo từ nút trên Ribbon: hiện kết quả và nạp lại cài đặt nếu Ribbon vừa đổi.</summary>
         public void Say(string msg)
         {
+            msg = Lang.Msg(msg);
             status.Text = msg;
             status.AccessibleName = "Thông báo kết quả: " + msg;
             ReloadIfChanged();
@@ -323,7 +345,7 @@ namespace TroLyKyThuat
             lv.View = View.Details; lv.FullRowSelect = true; lv.MultiSelect = false; lv.HideSelection = false; lv.GridLines = true;
             lv.Width = W - 10; lv.Height = 280; lv.AccessibleName = "Danh sách các mục cần xem";
             lv.Columns.Add("Mức", 96); lv.Columns.Add("Loại", 84); lv.Columns.Add("Hiện tại", 130); lv.Columns.Add("Đề xuất", 130);
-            lv.Columns.Add("Sửa", 40); lv.Columns.Add("Bỏ", 40);
+            lv.Columns.Add("Sửa", 48); lv.Columns.Add("Bỏ", 52);
             lv.SelectedIndexChanged += delegate { OnPick(); };
             lv.MouseUp += OnListClick;
             lv.KeyDown += delegate(object s, KeyEventArgs e)
@@ -425,7 +447,7 @@ namespace TroLyKyThuat
             {
                 cur = Compose.Build(tbCt.Text);
                 cbOpt.Items.Clear();
-                foreach (ComposeOption o in cur.Options) cbOpt.Items.Add(o.Label + ": " + o.Show);
+                foreach (ComposeOption o in cur.Options) cbOpt.Items.Add(Lang.Msg(o.Label + ": " + o.Show));
                 if (cur.Ok && cbOpt.Items.Count > 0) cbOpt.SelectedIndex = Math.Max(0, Math.Min(cur.Selected, cbOpt.Items.Count - 1));
                 cbOpt.Enabled = cbOpt.Items.Count > 1;
                 lblKind.Text = !cur.Ok ? "" : (cur.Kind == "chem" ? "Nhận ra: hóa học" : "Nhận ra: toán, lý");
@@ -516,8 +538,9 @@ namespace TroLyKyThuat
         // ------------------------------------------------------------ chạy lệnh an toàn
         void Report(string msg)
         {
+            msg = Lang.Msg(msg);   // Rev0.9.6
             status.Text = msg;
-            status.AccessibleName = "Thông báo kết quả: " + msg;
+            status.AccessibleName = Lang.T("Thông báo kết quả") + ": " + msg;
             // Rev0.7: không hiện hộp thoại; nội dung nằm ở ô trạng thái và thanh trạng thái của Word.
         }
 
@@ -578,10 +601,10 @@ namespace TroLyKyThuat
         {
             RvRow r = Current();
             if (r == null) return;
-            tbReason.Text = r.SevText + ". " + r.CatText + ". " + r.Reason;
+            tbReason.Text = Lang.Msg(r.SevText + ". " + r.CatText + ". " + r.Reason);
             cbFix.Items.Clear();
             for (int i = 0; i < r.FixLabels.Length; i++)
-                cbFix.Items.Add(r.FixLabels[i] + ": " + r.Before + " thành " + r.FixShow[i]);
+                cbFix.Items.Add(Lang.Msg(r.FixLabels[i] + ": " + r.Before + " thành " + r.FixShow[i]));
             if (cbFix.Items.Count > 0) cbFix.SelectedIndex = 0;
             string err;
             OnWord(delegate { return rv.Goto(r.Index); }, out err);   // lỗi khi chuyển vị trí không cần báo
@@ -613,7 +636,7 @@ namespace TroLyKyThuat
             lv.Items.RemoveAt(idx);
             if (idx < lv.Items.Count) { lv.Items[idx].Selected = true; lv.Items[idx].Focused = true; }
             else if (lv.Items.Count > 0) { lv.Items[lv.Items.Count - 1].Selected = true; }
-            else { tbReason.Text = "Đã xử lý hết các mục."; cbFix.Items.Clear(); }
+            else { tbReason.Text = Lang.Msg("Đã xử lý hết các mục."); cbFix.Items.Clear(); }
             SetRvEnabled();
             lblRv.Text = "Còn " + lv.Items.Count + " mục.";
         }

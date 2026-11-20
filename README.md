@@ -4,13 +4,13 @@
 
 Add-in cho Microsoft Word dành cho người viết báo cáo kỹ thuật: dàn trang, bảng, số liệu, công thức hóa học và toán, đơn vị, cùng các công cụ rà soát văn bản. Chạy trên máy của bạn, không cần máy chủ riêng.
 
-> Giao diện hiện bằng **tiếng Việt**. Bản tiếng Anh đang được làm.
+> Giao diện có **tiếng Việt và tiếng Anh**. Đổi bằng nút **Ngôn ngữ (VI | EN)** trên Ribbon hoặc trong Cài đặt, có hiệu lực ngay, không cần mở lại Word. Mặc định là tiếng Việt. Chữ chưa có bản dịch giữ tiếng Việt; chữ đọc số bằng lời và luật kiểm tra văn bản tiếng Việt vẫn là tiếng Việt vì đó là chức năng cho văn bản tiếng Việt.
 
 ## Chức năng chính
 
 Add-in thêm ba thẻ vào Ribbon của Word:
 
-- **Công cụ:** gom các lệnh Word hay dùng (chữ, đoạn văn, trang, chèn, ảnh, bảng) vào một thẻ xếp gọn, kèm các nút chuẩn hóa của add-in.
+- **Công cụ:** gom các lệnh Word hay dùng (chữ, đoạn văn, trang, chèn, ảnh, bảng) vào một thẻ xếp gọn, kèm các nút chuẩn hóa của add-in và nút đổi ngôn ngữ.
 - **My table:** áp một kiểu bảng thống nhất cho mọi bảng (tiêu đề, viền, tô xen kẽ, font, cỡ chữ, căn ô), thêm hoặc xóa hàng và cột, tính Tổng, Trung bình, Nhỏ nhất, Lớn nhất, Đếm số, Tích theo định dạng ngay trong bảng (kể cả bảng có ô gộp).
 - **Chuẩn hóa:** chuẩn hóa dàn trang và đoạn văn (có chọn canh lề, áp cho nhiều đoạn cùng lúc), định dạng số (kiểu Việt, Mỹ, SI, số chữ số thập phân, kiểu kỹ thuật), đọc số và đơn vị bằng chữ, rà soát công thức hóa học, toán, ký hiệu và đơn vị, soạn phương trình, và các công cụ AI (viết lại, dịch, văn phong, ngữ pháp, thuật ngữ, từ đồng nghĩa).
 
@@ -54,13 +54,13 @@ Báo lỗi và đề xuất qua Issues. Khi báo lỗi, hãy ghi rõ bản Word,
 
 A Microsoft Word add-in for technical report writers: page and paragraph layout, tables, numbers, chemical and math formulas, units, and text-review tools. It runs locally on your PC and needs no server.
 
-> The user interface is currently **Vietnamese only**. An English interface is in progress.
+> The interface is available in **Vietnamese and English**. Switch with the **Language (VI | EN)** button on the ribbon or in Settings; it takes effect immediately, no need to restart Word. Vietnamese is the default. Text without a translation stays in Vietnamese; the number-to-words reader and the checks for Vietnamese text remain Vietnamese because they work on Vietnamese text.
 
 ### Features
 
 The add-in adds three tabs to the Word ribbon:
 
-- **Công cụ (Tools):** frequently used Word commands (font, paragraph, page, insert, pictures, tables) in one neatly arranged tab, plus the add-in's own standardization buttons.
+- **Công cụ (Tools):** frequently used Word commands (font, paragraph, page, insert, pictures, tables) in one neatly arranged tab, plus the add-in's own standardization buttons and the language switch.
 - **My table:** apply one consistent table style to all tables (header, borders, zebra rows, font, size, cell alignment), add or delete rows and columns, and calculate Sum, Average, Min, Max, Count and format-based Product directly in a table (including tables with merged cells).
 - **Chuẩn hóa (Standardize):** page and paragraph standardization (selectable alignment, applies to several selected paragraphs at once), number formatting (Vietnamese, US, SI styles, decimal places, scientific style), reading numbers and units in words, review of chemical and math formulas, symbols and units, an equation composer, and optional AI tools (rewrite, translate, style, grammar, terminology, synonyms).
 
